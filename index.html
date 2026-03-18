@@ -135,8 +135,8 @@ header::before {
   position: absolute; inset: 0; z-index: -2;
   border-radius: 999px;
   background: transparent;
-  backdrop-filter: blur(80px) saturate(180%);
-  -webkit-backdrop-filter: blur(80px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 /* Layer 2: frosted white tint — sits on top of the blur, gives the "glass" look */
@@ -252,87 +252,200 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
   -webkit-backdrop-filter: blur(18px) saturate(120%);
 }
 
-/* Main image — animates from a thumbnail rect to full */
+/* lb-img-wrap defined below with swipe states */
+
+/* Close X + top bar buttons */
+.lb-topbar {
+  position: fixed; top: 16px; right: 16px;
+  z-index: 110;
+  display: flex; align-items: center; gap: 8px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s 0.2s;
+}
+.lightbox.open .lb-topbar { opacity: 1; pointer-events: all; }
+
+.lb-top-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.18s;
+}
+.lb-top-btn:hover { background: rgba(255,255,255,0.22); }
+.lb-top-btn.del-top { border-color: rgba(220,60,60,0.4); color: #f08080; }
+.lb-top-btn.del-top:hover { background: rgba(220,60,60,0.25); }
+
+/* Image swap transition with blur */
 .lb-img-wrap {
   position: relative; z-index: 2;
   display: flex; align-items: center; justify-content: center;
   flex: 1; width: 100%;
   padding: 60px 16px 0;
+  overflow: hidden;
 }
 .lb-img-wrap img {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 100%; max-height: 100%;
   border-radius: 14px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-  /* start: small, same position as thumbnail */
   transform: scale(0.55) translateY(30px);
   opacity: 0;
   transition:
     transform 0.42s cubic-bezier(0.34, 1.28, 0.64, 1),
     opacity 0.28s ease,
+    filter 0.3s ease,
     border-radius 0.4s ease;
   object-fit: contain;
+  user-select: none; -webkit-user-drag: none;
 }
 .lightbox.open .lb-img-wrap img {
   transform: scale(1) translateY(0);
-  opacity: 1;
-  border-radius: 10px;
+  opacity: 1; border-radius: 10px;
+}
+/* swipe states */
+.lb-img-wrap img.swipe-out-left  { transform: translateX(-22%) scale(0.88); opacity: 0; filter: blur(8px); transition: transform 0.28s ease, opacity 0.22s ease, filter 0.28s ease; }
+.lb-img-wrap img.swipe-out-right { transform: translateX(22%) scale(0.88);  opacity: 0; filter: blur(8px); transition: transform 0.28s ease, opacity 0.22s ease, filter 0.28s ease; }
+.lb-img-wrap img.swipe-in-left   { transform: translateX(18%) scale(0.92);  opacity: 0; filter: blur(6px); transition: none; }
+.lb-img-wrap img.swipe-in-right  { transform: translateX(-18%) scale(0.92); opacity: 0; filter: blur(6px); transition: none; }
+.lb-img-wrap img.swipe-settle    { transform: translateX(0) scale(1); opacity: 1; filter: blur(0px); transition: transform 0.35s cubic-bezier(.25,.46,.45,.94), opacity 0.25s ease, filter 0.3s ease; }
+
+/* drag live blur */
+.lb-img-wrap img.dragging {
+  transition: none !important;
 }
 
-/* Close X */
-.lb-x {
-  position: fixed; top:20px; right:20px; z-index: 110;
-  background: rgba(255,255,255,0.10);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.16);
-  color: #fff; border-radius: 50%;
-  width: 42px; height: 42px; font-size:1.1rem;
-  cursor: pointer; display:flex; align-items:center; justify-content:center;
-  transition: all 0.18s;
-  opacity: 0;
+/* ─── SELECT MODE ─── */
+.select-pill {
+  position: fixed; top: 26px; right: 80px;
+  z-index: 20;
+  display: flex; align-items: center; gap: 6px;
+  padding: 0 16px; height: 50px;
+  border-radius: 999px; background: transparent;
+  border: 1px solid rgba(255,255,255,0.22);
+  color: var(--text); font-size: 0.72rem;
+  font-family: 'Outfit', sans-serif; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer;
+  isolation: isolate; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 1px 0 rgba(255,255,255,0.10) inset;
+  transition: all 0.22s;
 }
-.lightbox.open .lb-x { opacity: 1; transition: opacity 0.3s 0.2s, background 0.18s; }
-.lb-x:hover { background: rgba(255,255,255,0.2); }
+.select-pill::before {
+  content:''; position:absolute; inset:0; z-index:-2; border-radius:999px;
+  background:transparent;
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+}
+.select-pill::after {
+  content:''; position:absolute; inset:0; z-index:-1; border-radius:999px;
+  background:linear-gradient(160deg,rgba(255,255,255,0.14) 0%,rgba(255,255,255,0.04) 60%,rgba(0,0,0,0.06) 100%);
+}
+.select-pill:hover { border-color: rgba(255,255,255,0.38); }
+.select-pill.active { border-color: var(--accent); color: var(--accent); }
+
+/* selection overlay on grid items */
+.gallery-item.selected::after {
+  content: '✓';
+  position: absolute; top: 8px; right: 8px;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-dk);
+  font-size: 0.75rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.gallery-item.selectable { cursor: default; }
+.gallery-item.selectable img { transition: transform 0.2s, opacity 0.2s; }
+.gallery-item.selectable:not(.selected) img { opacity: 0.6; }
+
+/* select mode action bar */
+.select-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 25;
+  display: flex; justify-content: center;
+  padding: 0 16px max(20px, env(safe-area-inset-bottom,20px));
+  pointer-events: none; opacity: 0;
+  transition: opacity 0.22s;
+}
+.select-bar.show { opacity: 1; pointer-events: all; }
+.select-bar-inner {
+  display: flex; gap: 10px; align-items: center;
+  padding: 12px 16px; border-radius: 999px;
+  isolation: isolate; overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.22);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.75), 0 1px 0 rgba(255,255,255,0.10) inset;
+  position: relative;
+}
+.select-bar-inner::before {
+  content:''; position:absolute; inset:0; z-index:-2; border-radius:999px;
+  background:transparent;
+  backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+}
+.select-bar-inner::after {
+  content:''; position:absolute; inset:0; z-index:-1; border-radius:999px;
+  background:linear-gradient(160deg,rgba(255,255,255,0.14) 0%,rgba(255,255,255,0.04) 60%,rgba(0,0,0,0.06) 100%);
+}
+.sel-count { font-size: 0.78rem; color: var(--muted); font-weight: 300; padding: 0 4px; white-space: nowrap; }
+.sel-btn {
+  padding: 8px 18px; border-radius: 999px;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+  color: var(--text); font-size: 0.71rem;
+  font-family: 'Outfit', sans-serif; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.sel-btn:hover { background: rgba(255,255,255,0.16); }
+.sel-btn.danger { border-color: rgba(220,60,60,0.3); color: #f08080; }
+.sel-btn.danger:hover { background: rgba(220,60,60,0.2); }
 
 /* ─── THUMBNAIL STRIP ─── */
 .lb-strip-wrap {
   position: relative; z-index: 2;
   width: 100%;
-  padding: 14px 16px max(18px, env(safe-area-inset-bottom, 18px));
+  padding: 8px 16px max(20px, env(safe-area-inset-bottom, 20px));
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 0.3s 0.18s, transform 0.35s 0.18s cubic-bezier(.25,.46,.45,.94);
 }
 .lightbox.open .lb-strip-wrap { opacity: 1; transform: translateY(0); }
 
-/* action bar */
-.lb-actions {
-  display: flex; justify-content: center; gap: 10px;
-  margin-bottom: 14px;
+/* ••• dropdown — anchored to topbar */
+.lb-more-menu {
+  position: absolute;
+  top: calc(100% + 8px); right: 0;
+  width: 210px;
+  background: rgba(18,19,32,0.85);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  display: none;
+  animation: popIn .18s cubic-bezier(.34,1.4,.64,1);
+  z-index: 120;
 }
-.lb-act-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.13);
-  color: #fff; border-radius: 14px;
-  padding: 10px 16px; cursor: pointer;
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase;
-  transition: all 0.18s; backdrop-filter: blur(10px); font-weight: 400;
-  min-width: 58px;
+.lb-more-menu.open { display: block; }
+.lb-more-item {
+  width: 100%; padding: 13px 18px;
+  background: none; border: none; color: #fff;
+  font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 400;
+  text-align: left; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+  transition: background 0.15s;
 }
-.lb-act-btn .lb-icon { font-size: 1.15rem; line-height: 1; }
-.lb-act-btn:hover { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
-.lb-act-btn.del { border-color: rgba(220,60,60,0.3); color: #f08080; }
-.lb-act-btn.del:hover { background: rgba(220,60,60,0.2); border-color: rgba(220,60,60,0.5); }
+.lb-more-item:hover { background: rgba(255,255,255,0.10); }
+.lb-more-item span:first-child { font-size: 1rem; width: 20px; text-align: center; }
+.lb-more-sep { height: 1px; background: rgba(255,255,255,0.10); margin: 0 14px; }
 
-/* thumbnail row */
+/* thumbs row — now on top */
 .lb-thumbs {
   display: flex; gap: 7px;
   overflow-x: auto; scroll-snap-type: x mandatory;
-  padding-bottom: 4px; scrollbar-width: none;
-  justify-content: flex-start;
+  padding-right: 44px; /* space for ••• fab */
+  padding-bottom: 10px;
+  scrollbar-width: none;
 }
 .lb-thumbs::-webkit-scrollbar { display: none; }
 .lb-thumb {
@@ -342,6 +455,30 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
   border: 2px solid transparent;
   transition: all 0.18s; opacity: 0.55;
 }
+.lb-thumb.active { border-color: var(--accent); opacity: 1; transform: scale(1.06); }
+.lb-thumb:hover { opacity: 0.85; }
+.lb-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+
+/* action bar — below thumbs */
+.lb-actions {
+  display: flex; gap: 10px;
+  padding: 0;
+}
+.lb-act-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.13);
+  color: #fff; border-radius: 14px;
+  padding: 12px 0; cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase;
+  transition: all 0.18s; backdrop-filter: blur(10px); font-weight: 400;
+  flex: 1; min-width: 0;
+}
+.lb-act-btn .lb-icon { font-size: 1.15rem; line-height: 1; letter-spacing: 0; }
+.lb-act-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25); transform: translateY(-2px); }
+.lb-act-btn.del { border-color: rgba(220,60,60,0.3); color: #f08080; }
+.lb-act-btn.del:hover { background: rgba(220,60,60,0.2); border-color: rgba(220,60,60,0.5); }
 .lb-thumb.active { border-color: var(--accent); opacity: 1; transform: scale(1.06); }
 .lb-thumb:hover { opacity: 0.85; }
 .lb-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
@@ -464,6 +601,16 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
   </div>
 </div>
 
+<!-- SELECT mode action bar -->
+<div class="select-bar" id="selectBar">
+  <div class="select-bar-inner">
+    <span class="sel-count" id="selCount">0 selecionadas</span>
+    <button class="sel-btn" onclick="selDownload()">⬇ Baixar</button>
+    <button class="sel-btn danger" onclick="selDelete()">🗑 Excluir</button>
+    <button class="sel-btn" onclick="selectMode=true;toggleSelectMode()">Cancelar</button>
+  </div>
+</div>
+
 <!-- BOTTOM-LEFT PILL -->
 <div class="pill-wrap">
   <header>
@@ -491,34 +638,34 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
 <div class="lightbox" id="lightbox">
   <div class="lb-backdrop" onclick="closeLightbox()"></div>
 
-  <button class="lb-x" onclick="closeLightbox()">✕</button>
+  <!-- top bar: ✕  🗑  ••• -->
+  <div class="lb-topbar">
+    <button class="lb-top-btn del-top" onclick="lbDelete()" title="Excluir">🗑</button>
+    <button class="lb-top-btn" onclick="toggleMore(event)" title="Mais">•••</button>
+    <button class="lb-top-btn" onclick="closeLightbox()" title="Fechar">✕</button>
+    <!-- ••• dropdown anchored here -->
+    <div class="lb-more-menu" id="lbMoreMenu">
+      <button class="lb-more-item" onclick="lbShare();closeMore()"><span>↑</span> Compartilhar</button>
+      <div class="lb-more-sep"></div>
+      <button class="lb-more-item" onclick="lbInfo();closeMore()"><span>ℹ</span> Informações</button>
+      <div class="lb-more-sep"></div>
+      <button class="lb-more-item" onclick="lbFav();closeMore()"><span id="favIcon">♡</span> <span id="favLabel">Favoritar</span></button>
+    </div>
+  </div>
 
   <!-- main image -->
   <div class="lb-img-wrap">
     <img id="lbImg" src="" alt="">
   </div>
 
-  <!-- strip: actions + thumbnails -->
+  <!-- strip -->
   <div class="lb-strip-wrap">
+    <div class="lb-thumbs" id="lbThumbs"></div>
     <div class="lb-actions">
       <button class="lb-act-btn" onclick="lbDownload()">
         <span class="lb-icon">⬇</span>Baixar
       </button>
-      <button class="lb-act-btn" onclick="lbShare()">
-        <span class="lb-icon">↑</span>Compartilhar
-      </button>
-      <button class="lb-act-btn" onclick="lbInfo()">
-        <span class="lb-icon">ℹ</span>Info
-      </button>
-      <button class="lb-act-btn" onclick="lbFav()">
-        <span class="lb-icon" id="favIcon">♡</span><span id="favLabel">Favorito</span>
-      </button>
-      <button class="lb-act-btn del" onclick="lbDelete()">
-        <span class="lb-icon">🗑</span>Excluir
-      </button>
     </div>
-
-    <div class="lb-thumbs" id="lbThumbs"></div>
   </div>
 </div>
 
@@ -542,6 +689,15 @@ document.documentElement.style.setProperty('--radius', savedRadius);
 function save()  { try { localStorage.setItem('gallery_photos', JSON.stringify(photos)); } catch(e){} }
 function saveFav(){ try { localStorage.setItem('gallery_favs',   JSON.stringify(favs));   } catch(e){} }
 
+function toggleSelectMode(startIdx) {
+  selectMode = !selectMode;
+  selected.clear();
+  if (selectMode && startIdx !== undefined) selected.add(startIdx);
+  document.getElementById('selectBar').classList.toggle('show', selectMode);
+  updateSelCount();
+  render();
+}
+
 function render() {
   const grid  = document.getElementById('grid');
   const empty = document.getElementById('emptyState');
@@ -549,11 +705,55 @@ function render() {
   if (!photos.length) { empty.classList.add('show'); grid.innerHTML=''; return; }
   empty.classList.remove('show');
   const list = sortByDate ? [...photos].reverse() : photos;
-  grid.innerHTML = list.map((p,i)=>`
-    <div class="gallery-item" style="${animOn?`animation-delay:${Math.min(i,18)*0.028}s`:'animation:none'}" onclick="openLightbox(${photos.indexOf(p)})">
+  grid.innerHTML = list.map((p,i)=>{
+    const realIdx = photos.indexOf(p);
+    const isSel = selected.has(realIdx);
+    return `
+    <div class="gallery-item${selectMode?' selectable':''}${isSel?' selected':''}" 
+         style="${animOn?`animation-delay:${Math.min(i,18)*0.028}s`:'animation:none'}"
+         data-idx="${realIdx}">
       <img src="${p.src}" alt="foto ${i+1}" loading="lazy">
       <div class="item-ov"></div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+
+  // attach tap + long-press to every item
+  grid.querySelectorAll('.gallery-item').forEach(el => {
+    const idx = +el.dataset.idx;
+    let pressTimer = null;
+    let didLongPress = false;
+
+    const startPress = () => {
+      didLongPress = false;
+      pressTimer = setTimeout(() => {
+        didLongPress = true;
+        navigator.vibrate?.(40);
+        if (!selectMode) toggleSelectMode(idx);
+        else { toggleSelect(idx); }
+      }, 500);
+    };
+    const cancelPress = () => clearTimeout(pressTimer);
+    const handleTap = () => {
+      if (didLongPress) return;
+      if (selectMode) toggleSelect(idx);
+      else openLightbox(idx);
+    };
+
+    el.addEventListener('mousedown',  startPress);
+    el.addEventListener('touchstart', startPress, {passive:true});
+    el.addEventListener('mouseup',    cancelPress);
+    el.addEventListener('touchend',   cancelPress, {passive:true});
+    el.addEventListener('mouseleave', cancelPress);
+    el.addEventListener('click',      handleTap);
+  });
+}
+
+function toggleSelect(idx) {
+  if (selected.has(idx)) selected.delete(idx); else selected.add(idx);
+  // exit select mode if nothing selected
+  if (selected.size === 0 && selectMode) { toggleSelectMode(); return; }
+  updateSelCount();
+  render();
 }
 
 function handleFiles(e) {
@@ -610,16 +810,74 @@ function renderStrip() {
   }, 80);
 }
 
-function lbGoTo(i) {
-  currentLb = i;
+function lbGoTo(i, dir) {
+  if (i === currentLb || !photos.length) return;
   const img = document.getElementById('lbImg');
-  img.style.transition = 'opacity 0.15s';
-  img.style.opacity = '0';
-  setTimeout(()=>{ img.src = photos[i].src; img.style.opacity='1'; }, 150);
-  document.querySelectorAll('.lb-thumb').forEach((t,j)=>t.classList.toggle('active',j===i));
-  const active = document.querySelector('.lb-thumb.active');
-  active?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
-  updateFavUI();
+  const goDir = dir ?? (i > currentLb ? 1 : -1);
+
+  // out animation on current
+  img.classList.remove('swipe-settle','swipe-in-left','swipe-in-right');
+  img.classList.add(goDir > 0 ? 'swipe-out-left' : 'swipe-out-right');
+
+  setTimeout(() => {
+    currentLb = i;
+    img.src = photos[i].src;
+    // position new image off-screen
+    img.classList.remove('swipe-out-left','swipe-out-right');
+    img.classList.add(goDir > 0 ? 'swipe-in-left' : 'swipe-in-right');
+    // force reflow
+    img.getBoundingClientRect();
+    img.classList.remove('swipe-in-left','swipe-in-right');
+    img.classList.add('swipe-settle');
+
+    document.querySelectorAll('.lb-thumb').forEach((t,j)=>t.classList.toggle('active',j===i));
+    const active = document.querySelector('.lb-thumb.active');
+    active?.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+    updateFavUI();
+  }, 260);
+}
+
+/* ─── SELECT MODE ─── */
+let selectMode = false;
+let selected = new Set();
+
+function toggleSelectMode() {
+  selectMode = !selectMode;
+  selected.clear();
+  document.getElementById('selectPill').classList.toggle('active', selectMode);
+  document.getElementById('selectBar').classList.toggle('show', selectMode);
+  document.querySelectorAll('.gallery-item').forEach(el => {
+    el.classList.toggle('selectable', selectMode);
+    el.classList.remove('selected');
+  });
+  updateSelCount();
+  // in select mode, clicks select instead of open lightbox
+  render();
+}
+
+function updateSelCount() {
+  document.getElementById('selCount').textContent = selected.size + ' selecionada' + (selected.size !== 1 ? 's' : '');
+}
+
+function selDelete() {
+  if (!selected.size) return;
+  if (!confirm(`Remover ${selected.size} foto${selected.size>1?'s':''}?`)) return;
+  const idxs = [...selected].sort((a,b)=>b-a);
+  idxs.forEach(i => photos.splice(i,1));
+  const count = idxs.length;
+  selected.clear(); save();
+  selectMode = false;
+  document.getElementById('selectBar').classList.remove('show');
+  render();
+  toast(`${count} foto${count>1?'s':''} removida${count>1?'s':''}`);
+}
+
+function selDownload() {
+  if (!selected.size) return;
+  [...selected].forEach((i,n) => setTimeout(()=>{
+    const a = document.createElement('a'); a.href = photos[i].src; a.download = photos[i].name||`foto_${i+1}.jpg`; a.click();
+  }, n*250));
+  toast(`Baixando ${selected.size} foto${selected.size>1?'s':''}…`);
 }
 
 function lbDelete() {
@@ -675,18 +933,38 @@ function updateFavUI() {
   document.getElementById('favIcon').style.color  = isFav ? '#f5c842' : '';
 }
 
-// swipe on lightbox
-let tsX = 0;
-document.getElementById('lightbox').addEventListener('touchstart', e => { tsX = e.touches[0].clientX; }, {passive:true});
-document.getElementById('lightbox').addEventListener('touchend', e => {
+// swipe on lightbox with live drag blur
+let tsX = 0, tsDragging = false;
+const lb = document.getElementById('lightbox');
+lb.addEventListener('touchstart', e => {
+  tsX = e.touches[0].clientX; tsDragging = false;
+}, {passive:true});
+lb.addEventListener('touchmove', e => {
+  const dx = e.touches[0].clientX - tsX;
+  if (Math.abs(dx) > 12) {
+    tsDragging = true;
+    const img = document.getElementById('lbImg');
+    const ratio = Math.min(Math.abs(dx) / 180, 1);
+    img.classList.add('dragging');
+    img.style.transform = `translateX(${dx * 0.35}px) scale(${1 - ratio * 0.06})`;
+    img.style.filter = `blur(${ratio * 5}px)`;
+    img.style.opacity = `${1 - ratio * 0.3}`;
+  }
+}, {passive:true});
+lb.addEventListener('touchend', e => {
+  const img = document.getElementById('lbImg');
+  img.classList.remove('dragging');
+  img.style.transform = ''; img.style.filter = ''; img.style.opacity = '';
   const dx = e.changedTouches[0].clientX - tsX;
-  if (Math.abs(dx) > 50) { lbGoTo((currentLb + (dx<0?1:-1) + photos.length) % photos.length); }
+  if (tsDragging && Math.abs(dx) > 55) {
+    lbGoTo((currentLb + (dx<0?1:-1) + photos.length) % photos.length, dx<0?1:-1);
+  }
 }, {passive:true});
 
 document.addEventListener('keydown', e => {
   if (!document.getElementById('lightbox').classList.contains('open')) return;
-  if (e.key==='ArrowRight') lbGoTo((currentLb+1)%photos.length);
-  if (e.key==='ArrowLeft')  lbGoTo((currentLb-1+photos.length)%photos.length);
+  if (e.key==='ArrowRight') lbGoTo((currentLb+1)%photos.length, 1);
+  if (e.key==='ArrowLeft')  lbGoTo((currentLb-1+photos.length)%photos.length, -1);
   if (e.key==='Escape') closeLightbox();
 });
 
@@ -747,6 +1025,17 @@ function setCols(n){ document.documentElement.style.setProperty('--col',n); docu
 function setGridStyle(s){ document.body.classList.toggle('grid-square',s==='square'); document.querySelectorAll('#gridCtrl .seg-b').forEach((b,i)=>b.classList.toggle('active',['masonry','square'][i]===s)); }
 function setRadius(r){ document.documentElement.style.setProperty('--radius',r); document.querySelectorAll('#radiusCtrl .seg-b').forEach((b,i)=>b.classList.toggle('active',['0px','12px','22px'][i]===r)); localStorage.setItem('gallery_radius',r); }
 function setGap(m){ const g=m==='loose'?'18px':'10px'; document.querySelector('.gallery-grid').style.columnGap=g; document.querySelectorAll('.gallery-item').forEach(el=>el.style.marginBottom=g); document.querySelectorAll('#gapCtrl .seg-b').forEach((b,i)=>b.classList.toggle('active',i===(m==='loose'?1:0))); }
+function toggleMore(e) {
+  e.stopPropagation();
+  document.getElementById('lbMoreMenu').classList.toggle('open');
+}
+function closeMore() {
+  document.getElementById('lbMoreMenu').classList.remove('open');
+}
+document.getElementById('lightbox').addEventListener('click', e => {
+  const menu = document.getElementById('lbMoreMenu');
+  if (menu.classList.contains('open') && !menu.contains(e.target)) closeMore();
+});
 function toggleSort(){ sortByDate=document.getElementById('sortToggle').checked; render(); }
 function toggleAnim(){ animOn=document.getElementById('animToggle').checked; render(); }
 
