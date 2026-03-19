@@ -1072,11 +1072,8 @@ function render() {
     const onEnd = () => {
       clearTimeout(pressTimer);
       if (longPressed || didMove || isScrolling) return;
-      setTimeout(() => {
-        if (isScrolling) return;
-        if (selectMode) toggleSelect(idx);
-        else openLightbox(idx);
-      }, 10);
+      if (selectMode) toggleSelect(idx);
+      else openLightbox(idx);
     };
 
     el.addEventListener('touchstart', onStart, {passive:true});
@@ -1121,12 +1118,11 @@ function openLightbox(idx) {
   img.src = photos[idx].src;
   lb.classList.remove('open');
   lb.style.display = 'flex';
-  // Force a frame then animate
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  requestAnimationFrame(() => {
     lb.classList.add('open');
     renderStrip();
     updateFavUI();
-  }));
+  });
 }
 
 function closeLightbox() {
