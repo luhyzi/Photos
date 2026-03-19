@@ -154,7 +154,189 @@ header::after {
 }
 
 .pill-div { flex-shrink:0; width:1px; height:20px; background:rgba(255,255,255,0.25); }
-.pill-count { font-size:0.72rem; color:var(--text); letter-spacing:0.05em; font-weight:400; flex-shrink:0; text-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+
+/* pill tabs */
+.pill-tab {
+  background: none; border: none;
+  color: rgba(255,255,255,0.45);
+  font-family: 'Outfit', sans-serif; font-size: 0.8rem; font-weight: 500;
+  cursor: pointer; padding: 4px 2px; letter-spacing: 0.01em;
+  transition: color 0.18s; flex-shrink: 0;
+}
+.pill-tab.active { color: var(--text); font-weight: 600; }
+.pill-tab:hover { color: var(--text); }
+
+/* ─── ALBUMS GRID ─── */
+.albums-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  padding: 80px 2px 0;
+}
+.album-card {
+  cursor: pointer; border-radius: 14px; overflow: hidden;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  transition: transform 0.2s, border-color 0.2s;
+}
+.album-card:hover { transform: scale(1.02); border-color: var(--border-hi); }
+.album-thumb {
+  width: 100%; aspect-ratio: 1/1; position: relative; overflow: hidden;
+  background: rgba(255,255,255,0.06);
+}
+.album-thumb-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr; width: 100%; height: 100%;
+}
+.album-thumb-grid img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.album-thumb-grid img:first-child:last-child {
+  grid-column: span 2; grid-row: span 2;
+}
+.album-thumb-empty {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.2rem; opacity: 0.2;
+}
+.album-info { padding: 11px 13px 13px; }
+.album-name { font-size: 0.88rem; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.album-count { font-size: 0.72rem; color: var(--muted); font-weight: 300; }
+
+/* album open view — Apple style */
+.album-view {
+  position: fixed; inset: 0; z-index: 80;
+  background: var(--bg);
+  display: none; flex-direction: column;
+  overflow: hidden;
+  transition: background 0.35s;
+}
+.album-view.open { display: flex; }
+
+/* The single scrollable container */
+.album-scroll {
+  flex: 1; overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* hero cover — sits at top of scroll container */
+.album-hero {
+  position: relative;
+  width: 100%;
+  height: 56vw; min-height: 240px; max-height: 340px;
+  overflow: hidden;
+  transform-origin: top center;
+  will-change: transform, filter, opacity;
+}
+.album-hero-img {
+  width: 100%; height: 120%; /* taller than container for parallax */
+  object-fit: cover;
+  display: block;
+  transform-origin: top center;
+  will-change: transform, filter;
+}
+.album-hero-placeholder {
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,0.05);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 3rem; opacity: 0.15;
+}
+
+/* dark + gradient overlay on hero */
+.album-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.15) 0%,
+    transparent 40%,
+    rgba(0,0,0,0.05) 60%,
+    var(--bg) 100%
+  );
+  transition: background 0.35s;
+  pointer-events: none;
+}
+
+/* back button inside hero */
+.album-back {
+  position: absolute; top: 52px; left: 14px; z-index: 4;
+  background: rgba(0,0,0,0.30);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff; border-radius: 50%;
+  width: 36px; height: 36px; font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.18s;
+  will-change: opacity;
+}
+.album-back:hover { background: rgba(0,0,0,0.5); }
+
+/* title + count at bottom-left of hero */
+.album-hero-info {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  z-index: 3;
+  padding: 0 18px 18px;
+  will-change: opacity, transform;
+}
+.album-title {
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size: 2.2rem; font-weight: 300; color: #fff;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  line-height: 1.1; margin-bottom: 3px;
+}
+.album-subtitle {
+  font-size: 0.75rem; color: rgba(255,255,255,0.6);
+  font-weight: 300; letter-spacing: 0.03em;
+}
+
+/* fixed top bar — appears on scroll, fixed inside album-view */
+.album-topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 90;
+  height: 88px;
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 12px;
+  pointer-events: none;
+  opacity: 0;
+}
+/* blur layer behind topbar */
+.album-topbar::before {
+  content: '';
+  position: absolute; inset: 0;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  mask-image: linear-gradient(to bottom, black 0%, black 65%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 65%, transparent 100%);
+}
+.album-topbar::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, var(--fade1) 0%, var(--fade2) 100%);
+}
+.album-topbar-title {
+  position: relative; z-index: 1;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-weight: 300;
+  font-size: 1.3rem; color: var(--text);
+  letter-spacing: -0.01em;
+}
+.album-topbar-back {
+  position: absolute; left: 14px; bottom: 10px; z-index: 2;
+  background: none; border: none; color: var(--text);
+  font-size: 1.3rem; cursor: pointer; opacity: 0.8;
+  pointer-events: all; transition: opacity 0.18s;
+  padding: 6px 10px; display:flex; align-items:center;
+}
+.album-topbar-back:hover { opacity: 1; }
+
+/* grid area inside scroll */
+.album-body {
+  padding: 4px 12px 130px;
+  position: relative;
+}
+.album-body .gallery-grid { columns: 2; column-gap: 10px; }
+.album-body .gallery-item { margin-bottom: 10px; }
 .pill-icon-btn {
   background: rgba(255,255,255,0.12);
   border: 1px solid rgba(255,255,255,0.20);
@@ -166,11 +348,37 @@ header::after {
 }
 .pill-icon-btn:hover, .pill-icon-btn.active { background:var(--accent); border-color:var(--accent); color:var(--accent-dk); text-shadow:none; }
 
-/* ─── SETTINGS ─── */
-.settings-panel { position:fixed; bottom:90px; left:18px; width:min(310px,calc(100vw - 36px)); background:rgba(10,11,20,0.78); backdrop-filter:blur(44px) saturate(180%); -webkit-backdrop-filter:blur(44px) saturate(180%); border:1px solid var(--border-hi); border-radius:22px; padding:0; z-index:50; display:none; box-shadow:0 -4px 30px rgba(0,0,0,0.4),0 20px 50px rgba(0,0,0,0.35); overflow:hidden; transition:background 0.35s; }
-.settings-panel.open { display:block; animation:slideUp 0.22s ease; }
-@keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-.s-inner { max-height:70vh; overflow-y:auto; padding:20px; scrollbar-width:none; }
+
+/* ─── SETTINGS — fullscreen page ─── */
+.settings-panel {
+  position: fixed; inset: 0; z-index: 90;
+  background: var(--bg);
+  display: none; flex-direction: column;
+  overflow: hidden;
+  transition: background 0.35s;
+}
+.settings-panel.open { display: flex; animation: settingsFadeIn 0.22s ease; }
+@keyframes settingsFadeIn { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+/* Settings top header */
+.s-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 54px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.s-header-back {
+  background: none; border: none; color: var(--text);
+  font-size: 1.4rem; cursor: pointer; opacity: 0.7;
+  padding: 4px 8px 4px 0; transition: opacity 0.18s;
+}
+.s-header-back:hover { opacity: 1; }
+.s-header-title {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1.8rem; font-weight: 300; color: var(--text);
+}
+
+.s-inner { flex:1; overflow-y:auto; padding:20px; scrollbar-width:none; }
 .s-inner::-webkit-scrollbar { display:none; }
 .s-section { font-size:0.62rem; text-transform:uppercase; letter-spacing:0.15em; color:var(--accent); font-weight:600; margin:14px 0 10px; transition:color 0.35s; }
 .s-section:first-child { margin-top:0; }
@@ -201,7 +409,7 @@ header::after {
 .s-action-btn.danger:hover { background:rgba(220,60,60,0.2); }
 
 /* ─── GRID ─── */
-.scroll-wrap { padding-top:14px; padding-bottom:130px; padding-left:12px; padding-right:12px; }
+.scroll-wrap { padding-top:90px; padding-bottom:130px; padding-left:12px; padding-right:12px; }
 .gallery-grid { columns:var(--col); column-gap:10px; }
 .gallery-item { break-inside:avoid; margin-bottom:10px; position:relative; overflow:hidden; border-radius:var(--radius); cursor:pointer; animation:fadeUp 0.42s ease both; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
@@ -483,6 +691,41 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
 .lb-thumb:hover { opacity: 0.85; }
 .lb-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 
+/* ─── FULLSCREEN CONFIRM ─── */
+.confirm-screen {
+  position: fixed; inset: 0; z-index: 600;
+  background: var(--bg);
+  display: none; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 32px;
+  transition: background 0.35s;
+}
+.confirm-screen.show { display: flex; animation: cfIn 0.22s ease; }
+@keyframes cfIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.confirm-icon {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: rgba(220,60,60,0.12); border: 1px solid rgba(220,60,60,0.25);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 22px; color: #e08080;
+}
+.confirm-title {
+  font-family: 'Cormorant Garamond', serif; font-style: italic;
+  font-size: 1.85rem; color: var(--text); margin-bottom: 10px; text-align: center;
+}
+.confirm-msg {
+  font-size: 0.84rem; color: var(--muted); font-weight: 300;
+  text-align: center; line-height: 1.65; margin-bottom: 40px; max-width: 260px;
+}
+.confirm-btns { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; }
+.confirm-btn {
+  width: 100%; padding: 16px; border-radius: 16px; border: 1px solid transparent;
+  font-family: 'Outfit', sans-serif; font-size: 0.88rem; font-weight: 500; cursor: pointer; transition: all 0.18s;
+}
+.confirm-btn.danger { background: rgba(220,60,60,0.14); color: #f08080; border-color: rgba(220,60,60,0.28); }
+.confirm-btn.danger:hover { background: rgba(220,60,60,0.25); }
+.confirm-btn.cancel { background: rgba(255,255,255,0.06); color: var(--muted); border-color: var(--border); }
+.confirm-btn.cancel:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+
 /* ─── TOAST ─── */
 .toast { position:fixed; bottom:110px; left:50%; transform:translateX(-50%); background:rgba(20,22,35,0.9); backdrop-filter:blur(16px); border:1px solid var(--border-hi); border-radius:999px; padding:9px 20px; font-size:0.78rem; color:var(--text); z-index:500; opacity:0; pointer-events:none; transition:opacity 0.25s; white-space:nowrap; }
 .toast.show { opacity:1; }
@@ -512,7 +755,7 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
 <div class="top-fade"></div>
 <div class="bottom-fade"></div>
 
-<div class="photos-title">Photos</div>
+<div class="photos-title" id="mainTitle">Photos</div>
 <button class="add-fab" onclick="document.getElementById('fileInput').click()" title="Adicionar foto">＋</button>
 
 <div class="toast" id="toast"></div>
@@ -531,6 +774,10 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
 
 <!-- SETTINGS -->
 <div class="settings-panel" id="settingsPanel">
+  <div class="s-header">
+    <button class="s-header-back" onclick="toggleSettings()">‹</button>
+    <span class="s-header-title">Configurações</span>
+  </div>
   <div class="s-inner">
     <div class="s-section">Aparência</div>
     <div class="s-row">
@@ -605,25 +852,50 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
 <div class="select-bar" id="selectBar">
   <div class="select-bar-inner">
     <span class="sel-count" id="selCount">0 selecionadas</span>
-    <button class="sel-btn" onclick="selDownload()">⬇ Baixar</button>
-    <button class="sel-btn danger" onclick="selDelete()">🗑 Excluir</button>
+    <button class="sel-btn" onclick="selDownload()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:middle;margin-right:4px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Baixar
+    </button>
+    <button class="sel-btn danger" onclick="selDelete()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:middle;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>Excluir
+    </button>
     <button class="sel-btn" onclick="selectMode=true;toggleSelectMode()">Cancelar</button>
+  </div>
+</div>
+
+<!-- FULLSCREEN CONFIRM -->
+<div class="confirm-screen" id="confirmScreen">
+  <div class="confirm-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+    </svg>
+  </div>
+  <div class="confirm-title" id="confirmTitle">Remover foto?</div>
+  <div class="confirm-msg" id="confirmMsg">Esta ação não pode ser desfeita.</div>
+  <div class="confirm-btns">
+    <button class="confirm-btn danger" id="confirmOk">Remover</button>
+    <button class="confirm-btn cancel" onclick="hideConfirm()">Cancelar</button>
   </div>
 </div>
 
 <!-- BOTTOM-LEFT PILL -->
 <div class="pill-wrap">
   <header>
-    <span class="pill-count" id="photoCount">0 fotos</span>
+    <button class="pill-tab active" id="tabPhotos" onclick="switchTab('photos')">Photos</button>
+    <button class="pill-tab" id="tabAlbums" onclick="switchTab('albums')">Álbuns</button>
     <div class="pill-div"></div>
-    <button class="pill-icon-btn" id="settingsBtn" onclick="toggleSettings()" title="Configurações">⚙</button>
+    <button class="pill-icon-btn" id="settingsBtn" onclick="toggleSettings()" title="Configurações">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
   </header>
 </div>
 
 <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(event)">
 
 <!-- SCROLL -->
-<div class="scroll-wrap">
+<div class="scroll-wrap" id="viewPhotos">
   <div class="empty-state show" id="emptyState">
     <div class="empty-icon">🖼</div>
     <h2>Sua galeria está vazia</h2>
@@ -632,24 +904,69 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
   <div class="gallery-grid" id="grid"></div>
 </div>
 
+<!-- ALBUMS VIEW -->
+<div class="scroll-wrap" id="viewAlbums" style="display:none">
+  <div class="albums-grid" id="albumsGrid"></div>
+</div>
+
+<!-- ALBUM OPEN VIEW -->
+<div class="album-view" id="albumView">
+  <!-- fixed topbar: appears when scrolled -->
+  <div class="album-topbar" id="albumTopbar">
+    <button class="album-topbar-back" onclick="closeAlbum()">‹</button>
+    <span class="album-topbar-title" id="albumTopbarTitle"></span>
+  </div>
+
+  <div class="album-scroll" id="albumScroll">
+    <!-- hero cover -->
+    <div class="album-hero" id="albumHero">
+      <button class="album-back" onclick="closeAlbum()" id="albumBack">‹</button>
+      <div class="album-hero-overlay" id="albumHeroOverlay"></div>
+      <div class="album-hero-info" id="albumHeroInfo">
+        <div class="album-title" id="albumViewTitle">Photos</div>
+        <div class="album-subtitle" id="albumViewCount">0 fotos</div>
+      </div>
+    </div>
+    <!-- scrollable photo grid -->
+    <div class="album-body">
+      <div class="gallery-grid" id="albumGrid"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════════════════════
      LIGHTBOX
 ═══════════════════════════════ -->
 <div class="lightbox" id="lightbox">
   <div class="lb-backdrop" onclick="closeLightbox()"></div>
 
-  <!-- top bar: ✕  🗑  ••• -->
+  <!-- top bar: delete  •••  close -->
   <div class="lb-topbar">
-    <button class="lb-top-btn del-top" onclick="lbDelete()" title="Excluir">🗑</button>
-    <button class="lb-top-btn" onclick="toggleMore(event)" title="Mais">•••</button>
-    <button class="lb-top-btn" onclick="closeLightbox()" title="Fechar">✕</button>
+    <button class="lb-top-btn del-top" onclick="lbDelete()" title="Excluir">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    </button>
+    <button class="lb-top-btn" onclick="toggleMore(event)" title="Mais">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+    </button>
+    <button class="lb-top-btn" onclick="closeLightbox()" title="Fechar">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
     <!-- ••• dropdown anchored here -->
     <div class="lb-more-menu" id="lbMoreMenu">
-      <button class="lb-more-item" onclick="lbShare();closeMore()"><span>↑</span> Compartilhar</button>
+      <button class="lb-more-item" onclick="lbShare();closeMore()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Compartilhar
+      </button>
       <div class="lb-more-sep"></div>
-      <button class="lb-more-item" onclick="lbInfo();closeMore()"><span>ℹ</span> Informações</button>
+      <button class="lb-more-item" onclick="lbInfo();closeMore()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Informações
+      </button>
       <div class="lb-more-sep"></div>
-      <button class="lb-more-item" onclick="lbFav();closeMore()"><span id="favIcon">♡</span> <span id="favLabel">Favoritar</span></button>
+      <button class="lb-more-item" onclick="lbFav();closeMore()">
+        <svg id="favIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span id="favLabel">Favoritar</span>
+      </button>
     </div>
   </div>
 
@@ -661,11 +978,6 @@ body.grid-square .gallery-item img { aspect-ratio:1/1; object-fit:cover; }
   <!-- strip -->
   <div class="lb-strip-wrap">
     <div class="lb-thumbs" id="lbThumbs"></div>
-    <div class="lb-actions">
-      <button class="lb-act-btn" onclick="lbDownload()">
-        <span class="lb-icon">⬇</span>Baixar
-      </button>
-    </div>
   </div>
 </div>
 
@@ -701,7 +1013,6 @@ function toggleSelectMode(startIdx) {
 function render() {
   const grid  = document.getElementById('grid');
   const empty = document.getElementById('emptyState');
-  document.getElementById('photoCount').textContent = photos.length + ' foto' + (photos.length!==1?'s':'');
   if (!photos.length) { empty.classList.add('show'); grid.innerHTML=''; return; }
   empty.classList.remove('show');
   const list = sortByDate ? [...photos].reverse() : photos;
@@ -717,34 +1028,65 @@ function render() {
     </div>`;
   }).join('');
 
+  // Track scroll on the scroll-wrap to block touch interactions while scrolling
+  const gridWrap = document.getElementById('viewPhotos');
+  let isScrolling = false;
+  let scrollEndTimer = null;
+  gridWrap.removeEventListener('scroll', gridWrap._sh);
+  gridWrap._sh = () => {
+    isScrolling = true;
+    clearTimeout(scrollEndTimer);
+    scrollEndTimer = setTimeout(() => { isScrolling = false; }, 150);
+  };
+  gridWrap.addEventListener('scroll', gridWrap._sh, { passive: true });
+
   // attach tap + long-press to every item
   grid.querySelectorAll('.gallery-item').forEach(el => {
     const idx = +el.dataset.idx;
     let pressTimer = null;
-    let didLongPress = false;
+    let longPressed = false;
+    let didMove = false;
+    let startX = 0, startY = 0;
 
-    const startPress = () => {
-      didLongPress = false;
+    const onStart = (e) => {
+      if (isScrolling) return;
+      longPressed = false; didMove = false;
+      const t = e.touches?.[0] || e;
+      startX = t.clientX; startY = t.clientY;
       pressTimer = setTimeout(() => {
-        didLongPress = true;
+        if (didMove || isScrolling) return;
+        longPressed = true;
         navigator.vibrate?.(40);
         if (!selectMode) toggleSelectMode(idx);
-        else { toggleSelect(idx); }
+        else toggleSelect(idx);
       }, 500);
     };
-    const cancelPress = () => clearTimeout(pressTimer);
-    const handleTap = () => {
-      if (didLongPress) return;
-      if (selectMode) toggleSelect(idx);
-      else openLightbox(idx);
+
+    const onMove = (e) => {
+      const t = e.touches?.[0] || e;
+      const dx = Math.abs((t.clientX||0) - startX);
+      const dy = Math.abs((t.clientY||0) - startY);
+      if (dx > 6 || dy > 6) { didMove = true; clearTimeout(pressTimer); }
     };
 
-    el.addEventListener('mousedown',  startPress);
-    el.addEventListener('touchstart', startPress, {passive:true});
-    el.addEventListener('mouseup',    cancelPress);
-    el.addEventListener('touchend',   cancelPress, {passive:true});
-    el.addEventListener('mouseleave', cancelPress);
-    el.addEventListener('click',      handleTap);
+    const onEnd = () => {
+      clearTimeout(pressTimer);
+      if (longPressed || didMove || isScrolling) return;
+      setTimeout(() => {
+        if (isScrolling) return;
+        if (selectMode) toggleSelect(idx);
+        else openLightbox(idx);
+      }, 10);
+    };
+
+    el.addEventListener('touchstart', onStart, {passive:true});
+    el.addEventListener('touchmove',  onMove,  {passive:true});
+    el.addEventListener('touchend',   onEnd,   {passive:true});
+    el.addEventListener('mousedown',  onStart);
+    el.addEventListener('mousemove',  onMove);
+    el.addEventListener('mouseup',    onEnd);
+    el.addEventListener('mouseleave', () => clearTimeout(pressTimer));
+    el.addEventListener('click', (e) => e.preventDefault());
   });
 }
 
@@ -859,17 +1201,53 @@ function updateSelCount() {
   document.getElementById('selCount').textContent = selected.size + ' selecionada' + (selected.size !== 1 ? 's' : '');
 }
 
+/* ─── FULLSCREEN CONFIRM ─── */
+function showConfirm(title, msg, okLabel, onOk) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmOk').textContent = okLabel;
+  document.getElementById('confirmOk').onclick = () => { hideConfirm(); onOk(); };
+  document.getElementById('confirmScreen').classList.add('show');
+}
+function hideConfirm() {
+  document.getElementById('confirmScreen').classList.remove('show');
+}
+
 function selDelete() {
   if (!selected.size) return;
-  if (!confirm(`Remover ${selected.size} foto${selected.size>1?'s':''}?`)) return;
-  const idxs = [...selected].sort((a,b)=>b-a);
-  idxs.forEach(i => photos.splice(i,1));
-  const count = idxs.length;
-  selected.clear(); save();
-  selectMode = false;
-  document.getElementById('selectBar').classList.remove('show');
-  render();
-  toast(`${count} foto${count>1?'s':''} removida${count>1?'s':''}`);
+  const n = selected.size;
+  showConfirm(
+    n === 1 ? 'Remover foto?' : `Remover ${n} fotos?`,
+    'Esta ação não pode ser desfeita.',
+    'Remover',
+    () => {
+      const idxs = [...selected].sort((a,b)=>b-a);
+      idxs.forEach(i => photos.splice(i,1));
+      selected.clear(); save();
+      selectMode = false;
+      document.getElementById('selectBar').classList.remove('show');
+      render();
+      toast(`${idxs.length} foto${idxs.length>1?'s':''} removida${idxs.length>1?'s':''}`);
+    }
+  );
+}
+
+function lbDelete() {
+  showConfirm(
+    'Remover foto?',
+    'Esta ação não pode ser desfeita.',
+    'Remover',
+    () => {
+      photos.splice(currentLb, 1);
+      favs = favs.filter(f => f < photos.length);
+      save(); saveFav(); render();
+      if (!photos.length) { closeLightbox(); return; }
+      currentLb = Math.min(currentLb, photos.length - 1);
+      document.getElementById('lbImg').src = photos[currentLb].src;
+      renderStrip(); updateFavUI();
+      toast('Foto removida');
+    }
+  );
 }
 
 function selDownload() {
@@ -878,18 +1256,6 @@ function selDownload() {
     const a = document.createElement('a'); a.href = photos[i].src; a.download = photos[i].name||`foto_${i+1}.jpg`; a.click();
   }, n*250));
   toast(`Baixando ${selected.size} foto${selected.size>1?'s':''}…`);
-}
-
-function lbDelete() {
-  if (!confirm('Remover esta foto?')) return;
-  photos.splice(currentLb, 1);
-  favs = favs.filter(f=>f<photos.length);
-  save(); saveFav(); render();
-  if (!photos.length) { closeLightbox(); return; }
-  currentLb = Math.min(currentLb, photos.length-1);
-  document.getElementById('lbImg').src = photos[currentLb].src;
-  renderStrip(); updateFavUI();
-  toast('Foto removida');
 }
 
 function lbDownload() {
@@ -1011,15 +1377,10 @@ function setSsSpeed(ms){ ssSpeed=ms; document.querySelectorAll('#ssSpeedCtrl .se
 
 /* ─── SETTINGS ─── */
 function toggleSettings(){
-  document.getElementById('settingsPanel').classList.toggle('open');
-  document.getElementById('settingsBtn').classList.toggle('active');
+  const panel = document.getElementById('settingsPanel');
+  panel.classList.toggle('open');
+  document.getElementById('settingsBtn').classList.toggle('active', panel.classList.contains('open'));
 }
-document.addEventListener('click',e=>{
-  const panel=document.getElementById('settingsPanel'), wrap=document.querySelector('.pill-wrap');
-  if(panel.classList.contains('open')&&!panel.contains(e.target)&&!wrap.contains(e.target)){
-    panel.classList.remove('open'); document.getElementById('settingsBtn').classList.remove('active');
-  }
-});
 function setTheme(t,el){ document.body.setAttribute('data-theme',t); document.querySelectorAll('.sw').forEach(s=>s.classList.toggle('active',s.dataset.t===t)); localStorage.setItem('gallery_theme',t); }
 function setCols(n){ document.documentElement.style.setProperty('--col',n); document.querySelectorAll('#colCtrl .seg-b').forEach((b,i)=>b.classList.toggle('active',[2,3,4][i]===n)); localStorage.setItem('gallery_cols',n); }
 function setGridStyle(s){ document.body.classList.toggle('grid-square',s==='square'); document.querySelectorAll('#gridCtrl .seg-b').forEach((b,i)=>b.classList.toggle('active',['masonry','square'][i]===s)); }
@@ -1038,6 +1399,156 @@ document.getElementById('lightbox').addEventListener('click', e => {
 });
 function toggleSort(){ sortByDate=document.getElementById('sortToggle').checked; render(); }
 function toggleAnim(){ animOn=document.getElementById('animToggle').checked; render(); }
+
+/* ─── TABS ─── */
+let currentTab = 'photos';
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('viewPhotos').style.display = tab === 'photos' ? '' : 'none';
+  document.getElementById('viewAlbums').style.display = tab === 'albums' ? '' : 'none';
+  document.getElementById('tabPhotos').classList.toggle('active', tab === 'photos');
+  document.getElementById('tabAlbums').classList.toggle('active', tab === 'albums');
+  document.getElementById('mainTitle').textContent = tab === 'albums' ? 'Álbuns' : 'Photos';
+  if (tab === 'albums') renderAlbums();
+}
+
+/* ─── ALBUMS ─── */
+// Built-in albums: Photos (all), Favoritos, Recentes
+function getAlbums() {
+  const favList = photos.filter((_,i) => favs.includes(i));
+  const recent = [...photos].slice(-12).reverse();
+  return [
+    { id:'all',      name:'Photos',     photos: photos },
+    { id:'favs',     name:'Favoritos',  photos: favList },
+    { id:'recentes', name:'Recentes',   photos: recent  },
+  ];
+}
+
+function renderAlbums() {
+  const grid = document.getElementById('albumsGrid');
+  const albums = getAlbums();
+  grid.innerHTML = albums.map(a => {
+    const thumbs = a.photos.slice(0, 4);
+    const thumbHTML = thumbs.length
+      ? `<div class="album-thumb-grid">${thumbs.map(p=>`<img src="${p.src}" alt="">`).join('')}</div>`
+      : `<div class="album-thumb-empty">🖼</div>`;
+    return `
+      <div class="album-card" onclick="openAlbum('${a.id}')">
+        <div class="album-thumb">${thumbHTML}</div>
+        <div class="album-info">
+          <div class="album-name">${a.name}</div>
+          <div class="album-count">${a.photos.length} foto${a.photos.length!==1?'s':''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function openAlbum(id) {
+  const albums = getAlbums();
+  const album = albums.find(a => a.id === id);
+  if (!album) return;
+
+  // title + count
+  document.getElementById('albumViewTitle').textContent = album.name;
+  document.getElementById('albumViewCount').textContent = album.photos.length + ' foto' + (album.photos.length !== 1 ? 's' : '');
+
+  // hero image
+  const hero = document.getElementById('albumHero');
+  hero.querySelectorAll('img, .album-hero-placeholder').forEach(el => el.remove());
+  if (album.photos.length) {
+    const img = document.createElement('img');
+    img.src = album.photos[0].src;
+    img.className = 'album-hero-img';
+    img.id = 'albumHeroImg';
+    hero.insertBefore(img, hero.firstChild);
+  } else {
+    const ph = document.createElement('div');
+    ph.className = 'album-hero-placeholder';
+    ph.textContent = '🖼';
+    hero.insertBefore(ph, hero.firstChild);
+  }
+
+  // grid
+  const grid = document.getElementById('albumGrid');
+  if (!album.photos.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--muted);font-size:0.9rem;font-weight:300;">Nenhuma foto neste álbum</div>';
+  } else {
+    grid.innerHTML = album.photos.map((p,i) => {
+      const realIdx = photos.indexOf(p);
+      return `<div class="gallery-item" style="animation-delay:${Math.min(i,14)*0.03}s" data-idx="${realIdx}">
+        <img src="${p.src}" alt="" loading="lazy">
+        <div class="item-ov"></div>
+      </div>`;
+    }).join('');
+    grid.querySelectorAll('.gallery-item').forEach(el => {
+      const idx = +el.dataset.idx;
+      el.addEventListener('click', () => openLightbox(idx));
+    });
+  }
+
+  // set topbar title
+  document.getElementById('albumTopbarTitle').textContent = album.name;
+
+  // reset scroll
+  const scroll = document.getElementById('albumScroll');
+  scroll.scrollTop = 0;
+
+  // open
+  document.getElementById('albumView').classList.add('open');
+
+  // scroll-driven hero effect
+  const heroEl    = document.getElementById('albumHero');
+  const heroImg   = document.getElementById('albumHeroImg');
+  const heroInfo  = document.getElementById('albumHeroInfo');
+  const backBtn   = document.getElementById('albumBack');
+  const topbar    = document.getElementById('albumTopbar');
+  const heroH     = heroEl ? heroEl.offsetHeight : 280;
+
+  const onScroll = () => {
+    const y = scroll.scrollTop;
+    const progress = Math.min(y / heroH, 1);
+
+    if (!heroEl) return;
+
+    const scale = 1 - progress * 0.08;
+    const blur  = progress * 18;
+    const dark  = progress * 0.65;
+    const infoOpacity = 1 - progress * 2.2;
+
+    // hero effects
+    heroEl.style.transform = `scale(${scale})`;
+    if (heroImg) heroImg.style.filter = `blur(${blur}px) brightness(${1 - progress * 0.3})`;
+    document.getElementById('albumHeroOverlay').style.background =
+      `linear-gradient(to bottom, rgba(0,0,0,${0.15 + dark}) 0%, transparent 40%, rgba(0,0,0,${dark * 0.4}) 60%, var(--bg) 100%)`;
+    if (heroInfo) heroInfo.style.opacity = Math.max(0, infoOpacity);
+
+    // back button: switch from inside-hero to topbar
+    if (backBtn) backBtn.style.opacity = Math.max(0, 1 - progress * 3);
+
+    // topbar: fades in after hero is mostly scrolled
+    const topbarProgress = Math.max(0, (progress - 0.55) / 0.35);
+    if (topbar) topbar.style.opacity = topbarProgress;
+  };
+
+  scroll.removeEventListener('scroll', scroll._heroHandler);
+  scroll._heroHandler = onScroll;
+  scroll.addEventListener('scroll', onScroll, { passive: true });
+}
+
+function closeAlbum() {
+  document.getElementById('albumView').classList.remove('open');
+  const heroEl  = document.getElementById('albumHero');
+  const heroImg = document.getElementById('albumHeroImg');
+  const heroInfo= document.getElementById('albumHeroInfo');
+  const backBtn = document.getElementById('albumBack');
+  const topbar  = document.getElementById('albumTopbar');
+  if (heroEl)   heroEl.style.transform = '';
+  if (heroImg)  heroImg.style.filter = '';
+  if (heroInfo) heroInfo.style.opacity = '';
+  if (backBtn)  backBtn.style.opacity = '';
+  if (topbar)   topbar.style.opacity = '0';
+  document.getElementById('albumScroll').scrollTop = 0;
+}
 
 render();
 </script>
