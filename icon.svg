@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background gradient — deep indigo to near-black -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#1a1d35"/>
+      <stop offset="100%" stop-color="#0a0b12"/>
+    </linearGradient>
+
+    <!-- Accent glow — soft purple-blue -->
+    <radialGradient id="glow" cx="38%" cy="35%" r="60%">
+      <stop offset="0%"   stop-color="#6b8fff" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#6b8fff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Photo card gradient -->
+    <linearGradient id="card1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#2a3060"/>
+      <stop offset="100%" stop-color="#151830"/>
+    </linearGradient>
+    <linearGradient id="card2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#1e2450"/>
+      <stop offset="100%" stop-color="#0f1220"/>
+    </linearGradient>
+    <linearGradient id="card3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#232860"/>
+      <stop offset="100%" stop-color="#121525"/>
+    </linearGradient>
+
+    <!-- Mountain scene gradient for photo fill -->
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#4a6fa5"/>
+      <stop offset="100%" stop-color="#2a4878"/>
+    </linearGradient>
+    <linearGradient id="mountain" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#2d4a6e"/>
+      <stop offset="100%" stop-color="#1a2e45"/>
+    </linearGradient>
+
+    <!-- Glass shine overlay -->
+    <linearGradient id="shine" x1="0%" y1="0%" x2="40%" y2="100%">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="55%"  stop-color="#ffffff" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Rounded rect clip -->
+    <clipPath id="roundClip">
+      <rect width="1024" height="1024" rx="230" ry="230"/>
+    </clipPath>
+    <clipPath id="card1Clip">
+      <rect x="155" y="305" width="440" height="360" rx="22" ry="22"/>
+    </clipPath>
+    <clipPath id="card2Clip">
+      <rect x="270" y="230" width="440" height="360" rx="22" ry="22"/>
+    </clipPath>
+    <clipPath id="card3Clip">
+      <rect x="390" y="158" width="440" height="360" rx="22" ry="22"/>
+    </clipPath>
+
+    <filter id="cardShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="18" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Clipped root group -->
+  <g clip-path="url(#roundClip)">
+
+    <!-- Background -->
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+    <!-- Ambient glow -->
+    <rect width="1024" height="1024" fill="url(#glow)"/>
+
+    <!-- ── CARD 3 (back, most rotated) ── -->
+    <g transform="rotate(-12, 610, 338)" filter="url(#cardShadow)">
+      <rect x="390" y="158" width="440" height="360" rx="22" fill="url(#card3)"/>
+      <g clip-path="url(#card3Clip)">
+        <!-- sky -->
+        <rect x="390" y="158" width="440" height="220" fill="url(#sky)" opacity="0.7"/>
+        <!-- mountain shape -->
+        <polygon points="390,430 510,270 580,340 640,285 830,518" fill="url(#mountain)" opacity="0.8"/>
+        <!-- sun -->
+        <circle cx="680" cy="210" r="30" fill="#f5c842" opacity="0.55"/>
+        <!-- card border -->
+        <rect x="390" y="158" width="440" height="360" rx="22" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+      </g>
+    </g>
+
+    <!-- ── CARD 2 (middle) ── -->
+    <g transform="rotate(-4, 490, 410)" filter="url(#cardShadow)">
+      <rect x="270" y="230" width="440" height="360" rx="22" fill="url(#card2)"/>
+      <g clip-path="url(#card2Clip)">
+        <!-- gradient scene — dusk -->
+        <rect x="270" y="230" width="440" height="360" fill="#1a2040"/>
+        <rect x="270" y="230" width="440" height="190">
+          <animate attributeName="opacity" values="1" dur="0s"/>
+        </rect>
+        <defs>
+          <linearGradient id="dusk" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%"   stop-color="#3a2060"/>
+            <stop offset="60%"  stop-color="#c26030"/>
+            <stop offset="100%" stop-color="#1a1030"/>
+          </linearGradient>
+        </defs>
+        <rect x="270" y="230" width="440" height="360" fill="url(#dusk)" opacity="0.85"/>
+        <!-- silhouette hills -->
+        <ellipse cx="490" cy="600" rx="200" ry="90" fill="#0d0818" opacity="0.9"/>
+        <ellipse cx="680" cy="620" rx="160" ry="80" fill="#0d0818" opacity="0.85"/>
+        <!-- card border -->
+        <rect x="270" y="230" width="440" height="360" rx="22" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.5"/>
+      </g>
+    </g>
+
+    <!-- ── CARD 1 (front, straight) ── -->
+    <g filter="url(#cardShadow)">
+      <rect x="155" y="305" width="440" height="360" rx="22" fill="url(#card1)"/>
+      <g clip-path="url(#card1Clip)">
+        <!-- scene: soft gradient -->
+        <defs>
+          <linearGradient id="scene1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%"   stop-color="#1e3a6e"/>
+            <stop offset="50%"  stop-color="#2e5090"/>
+            <stop offset="100%" stop-color="#162850"/>
+          </linearGradient>
+        </defs>
+        <rect x="155" y="305" width="440" height="360" fill="url(#scene1)"/>
+
+        <!-- abstract bokeh circles -->
+        <circle cx="260" cy="420" r="55" fill="#4a80ff" opacity="0.18"/>
+        <circle cx="520" cy="380" r="75" fill="#7060ff" opacity="0.15"/>
+        <circle cx="430" cy="580" r="45" fill="#40a0ff" opacity="0.20"/>
+        <circle cx="320" cy="540" r="30" fill="#60c0ff" opacity="0.18"/>
+
+        <!-- portrait silhouette -->
+        <ellipse cx="375" cy="490" rx="62" ry="72" fill="rgba(255,255,255,0.08)"/>
+        <circle cx="375" cy="420" r="40" fill="rgba(255,255,255,0.10)"/>
+
+        <!-- mountain horizon -->
+        <polygon points="155,580 240,470 310,510 380,455 460,505 530,460 595,490 595,665 155,665" fill="#0e1828" opacity="0.75"/>
+
+        <!-- card border -->
+        <rect x="155" y="305" width="440" height="360" rx="22" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="1.5"/>
+      </g>
+    </g>
+
+    <!-- ── ACCENT DOT — bottom right, like a "photo" indicator ── -->
+    <circle cx="758" cy="682" r="52" fill="#6b8fff" opacity="0.85" filter="url(#softGlow)"/>
+    <circle cx="758" cy="682" r="52" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+    <!-- small star/sparkle inside dot -->
+    <g transform="translate(758,682)" fill="#fff">
+      <rect x="-2.5" y="-18" width="5" height="36" rx="2.5"/>
+      <rect x="-18" y="-2.5" width="36" height="5" rx="2.5"/>
+      <rect x="-2.5" y="-2.5" width="5" height="5" rx="2.5" transform="rotate(45)"/>
+    </g>
+
+    <!-- ── GLASS SHINE on top ── -->
+    <rect width="1024" height="1024" rx="230" fill="url(#shine)"/>
+
+    <!-- ── OUTER BORDER ── -->
+    <rect x="1" y="1" width="1022" height="1022" rx="229" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+
+  </g>
+</svg>
